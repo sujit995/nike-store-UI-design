@@ -1,11 +1,30 @@
+import { useState, useEffect } from 'react';
 import { hamburger } from "../assets/icons";
 import { headerLogo } from "../assets/images";
 import { navLinks } from "../constants";
-import { UilShoppingCartAlt, UilUserCircle } from "@iconscout/react-unicons";
+import { UilShoppingCartAlt } from "@iconscout/react-unicons";
 import { NavLink } from "react-router-dom";
-import { motion } from "framer-motion";
+import { auth } from "../config/firebase";
+import { useNavigate } from 'react-router-dom';
+
 
 const Nav = () => {
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setUser(user);
+    });
+    return unsubscribe;
+  }, []);
+
+
+  const handleLogout = () => {
+    auth.signOut();
+    navigate('/signup');
+  };
+
   return (
     <header className="padding-x py-8 w-full">
       <nav className="flex justify-between items-center max-container">
@@ -31,19 +50,30 @@ const Nav = () => {
           ))}
         </ul>
         <div className="flex gap-2 text-lg leading-normal font-medium font-montserrat max-lg:hidden wide:mr-24">
-          {/* <span className="flex flex-row">
+        <NavLink to="/cart">
+          <span className="flex flex-row" >
             <UilShoppingCartAlt size="30" color="#708090" />
             <span>(2)</span>
-          </span> */}
-          {/* <motion whileTap={{ scale: 1.2}}>
-          <UilUserCircle size="30" color="#708090" />
-        </motion> */}
+          </span>
+          </NavLink>
+        {
+          user ?
+          <>
+          <button
+           onClick={handleLogout}
+            className="font-bol "
+          >
+            Logout
+          </button>
+          </>
+          :
           <NavLink
             to="/signup"
             className={(navClass) => (navClass.isActive ? "font-bold" : "")}
           >
             Sign Up
           </NavLink>
+        }
         </div>
         <div className="hidden max-lg:block">
           <img src={hamburger} alt="hamburger icon" width={25} height={25} />
